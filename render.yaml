@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: gestantes-aps
+    env: python
+    plan: free
+    region: oregon
+    autoDeploy: true
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      # --- Variables de Google Sheets ---
+      - key: SHEETS_SPREADSHEET_ID
+        value: "1QpQQqAjt9u6rXXnsoelxy7u-twzTSGUVHXY9dCO6nkw"
+      - key: SHEETS_MAIN_TAB
+        value: "gestantes"
+      - key: SHEETS_ALERTS_TAB
+        value: "alertas"
+
+      # --- Variables Firebase ---
+      - key: FIREBASE_PROJECT_ID
+        value: "seguimientomaternas"
+      - key: FIREBASE_AUTH_DOMAIN
+        value: "seguimientomaternas.firebaseapp.com"
+      - key: FIREBASE_API_KEY
+        value: "AIzaSyDahRsJ6P73m0kNBzCW2IRan0RcwDbKR70"
+
+      # --- Otras configuraciones ---
+      - key: ALLOWED_ORIGINS
+        value: "https://gestantes-aps.onrender.com,http://127.0.0.1:8000,http://localhost:8000"
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        value: "/etc/secrets/firebase-admin.json"
+      - key: SHEETS_CACHE_TTL
+        value: "30"
+
+    secretFiles:
+      - source: firebase-admin.json
+        destination: /etc/secrets/firebase-admin.json

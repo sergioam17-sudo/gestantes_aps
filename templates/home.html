@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestantes APS</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="bar">
+      <div class="brand">Gestantes <b>APS</b></div>
+      <nav class="links">
+        <a href="/login">Login</a> ·
+        <a href="/docs" target="_blank">Swagger (API)</a> ·
+        <a href="#" onclick="logout()">Cerrar sesión</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h3>Formulario completo</h3>
+      <form id="form-completo" onsubmit="enviarCompleto(event)">
+        <div class="form-grid">
+          <!-- Añadimos .field + .input/.select; NO cambiamos name/id -->
+          <div class="field">
+            <label>Fecha de captación</label>
+            <input class="input" type="date" name="Fecha de captación">
+          </div>
+
+          <div class="field">
+            <label>Perfil profesional</label>
+            <select class="select" name="Perfil profesional" id="sel-perfil"></select>
+          </div>
+
+
+          <div class="field">
+            <label>Lugar de captación</label>
+            <select class="select" name="Lugar de captación" id="sel-lugar"></select>
+          </div>
+
+          <div class="field">
+            <label>Tipo y N° de identificación</label>
+            <input class="input" name="Tipo y N° de identificación" required>
+          </div>
+
+          <div class="field">
+            <label>Nombres y apellidos</label>
+            <input class="input" name="Nombres y apellidos" required>
+          </div>
+
+          <div class="field">
+            <label>Edad</label>
+            <input class="input" type="number" name="Edad" min="10" max="55">
+          </div>
+
+          <div class="field">
+            <label>Teléfono(s) de contacto</label>
+            <input class="input" name="Teléfono(s) de contacto" pattern="[0-9]{7,10}">
+          </div>
+
+          <div class="field">
+            <label>Dirección / Ubicación</label>
+            <input class="input" name="Dirección / Ubicación">
+          </div>
+
+          <div class="field">
+            <label>Municipio</label>
+            <input class="input" name="Municipio" required>
+          </div>
+
+          <div class="field">
+            <label>Zona</label>
+            <select class="select" name="Zona" id="sel-zona"></select>
+          </div>
+
+          <div class="field">
+            <label>Territorio</label>
+            <input class="input" name="Territorio" required>
+          </div>
+
+          <div class="field">
+            <label>Microterritorio</label>
+            <input class="input" name="Microterritorio" required>
+          </div>
+
+          <div class="field">
+            <label>Enfoque diferencial</label>
+            <select class="select" name="Enfoque diferencial" id="sel-enfoque"></select>
+          </div>
+
+          <div class="field">
+            <label>Semanas de gestación (EG)</label>
+            <input class="input" type="number" name="Semanas de gestación (EG)" min="4" max="42">
+          </div>
+
+          <div class="field">
+            <label>Embarazo múltiple</label>
+            <select class="select" name="Embarazo múltiple" id="sel-multiple"></select>
+          </div>
+
+          <div class="field">
+            <label>Fecha última menstruación (FUM) o eco</label>
+            <input class="input" type="date" name="Fecha última menstruación (FUM) o eco">
+          </div>
+
+          <div class="field">
+            <label>N° de controles prenatales (CPN)</label>
+            <input class="input" type="number" name="N° de controles prenatales (CPN)" min="0">
+          </div>
+
+          <div class="field">
+            <label>Fecha último CPN</label>
+            <input class="input" type="date" name="Fecha último CPN">
+          </div>
+
+          <div class="field">
+            <label>Atención por EBS</label>
+            <select class="select" name="Atención por EBS" id="sel-ebs"></select>
+          </div>
+
+          <div class="field">
+            <label>Atención por IPS/ESE</label>
+            <select class="select" name="Atención por IPS/ESE" id="sel-ipse"></select>
+          </div>
+
+          <div class="field">
+            <label>N° atenciones por EBS</label>
+            <input class="input" type="number" name="N° atenciones por EBS" min="0">
+          </div>
+
+          <div class="field">
+            <label>Estado vacunación materna</label>
+            <select class="select" name="Estado vacunación materna" id="sel-vacuna" multiple size="6"></select>
+          </div>
+
+          <div class="field">
+            <label>Consejería recibida</label>
+            <select class="select" name="Consejería recibida" id="sel-consejeria" multiple size="6"></select>
+          </div>
+
+          <div class="field">
+            <label>Tamizajes reportados</label>
+            <select class="select" name="Tamizajes reportados" id="sel-tamizajes" multiple size="6"></select>
+          </div>
+
+          <div class="field">
+            <label>Signos de alarma</label>
+            <select class="select" name="Signos de alarma" id="sel-alarma" multiple size="6"></select>
+          </div>
+
+          <div class="field">
+            <label>Factores psicosociales</label>
+            <select class="select" name="Factores psicosociales" id="sel-psico" multiple size="6"></select>
+          </div>
+
+          <div class="field">
+            <label>Barreras de acceso</label>
+            <select class="select" name="Barreras de acceso" id="sel-barreras" multiple size="6"></select>
+          </div>
+
+          <div class="field">
+            <label>Tipo de canalización</label>
+            <select class="select" name="Tipo de canalización" id="sel-canalizacion" multiple size="6"></select>
+          </div>
+
+          <div class="field">
+            <label>Fecha canalización</label>
+            <input class="input" type="date" name="Fecha canalización">
+          </div>
+
+          <div class="field">
+            <label>Fecha atención efectiva</label>
+            <input class="input" type="date" name="Fecha atención efectiva">
+          </div>
+
+          <div class="field">
+            <label>Resultado canalización</label>
+            <select class="select" name="Resultado canalización" id="sel-resultado"></select>
+          </div>
+
+          <div class="field" style="grid-column:1/-1">
+            <label>Observaciones</label>
+            <input class="input" name="Observaciones">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Guardar completo</button>
+          <button class="btn btn-ghost" type="reset" onclick="editingId=null">Limpiar</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <input id="q" class="input" placeholder="Buscar documento o nombre" />
+        <select id="pageSize" class="select">
+          <option value="10">10</option>
+          <option value="20" selected>20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        <button class="btn btn-ghost" onclick="doSearch()">Buscar</button>
+        <span class="badge">Tip: usa apellido o parte del documento</span>
+      </div>
+
+<div class="subpanel">
+  <div class="subpanel-head">
+    <h4>Resumen de alertas</h4>
+  </div>
+  <div id="alertas-resumen" class="muted">Cargando…</div>
+</div>
+
+<div class="subpanel" id="card-alertas-gestante" style="display:none;">
+  <div class="subpanel-head">
+    <h4>Alertas de gestante</h4>
+  </div>
+  <div id="alertas-gestante"></div>
+</div>
+
+      <h3>Listado</h3>
+      <div id="tabla-gestantes"></div>
+      <div id="pager" class="pager"></div>
+    </div>
+  </main>
+
+
+  <!-- UI -->
+  <script>
+
+let editingId = null;
+
+
+ // Estado de la vista
+const state = {
+    page: 1,
+    pageSize: 20,
+    q: ""
+  };
+
+
+function renderTabla(items) {
+  const cont = document.getElementById('tabla-gestantes');
+  if (!items || !items.length) {
+    cont.innerHTML = '<p class="muted">Sin registros visibles para tu rol/municipio.</p>';
+    return;
+  }
+
+  const cols = [
+    "id",
+    "Municipio",
+    "Nombres y apellidos",
+    "Tipo y N° de identificación",
+    "Fecha de captación",
+    "riesgo",
+    "alertas_abiertas"
+  ];
+
+  let thead = '<thead><tr>' + 
+    cols.map(c => `<th>${c}</th>`).join('') + 
+    '<th>Acciones</th></tr></thead>';
+
+  let tbody = '<tbody>' + items.map(r => {
+    const tds = cols.map(c => {
+  let v = (r[c] ?? '');
+  if (c === 'riesgo') {
+    const cls = v === 'Rojo' ? 'riesgo-rojo' : (v === 'Amarillo' ? 'riesgo-amarillo' : 'riesgo-verde');
+    return `<td class="${cls}">${v||''}</td>`;
+  }
+  if (c === 'alertas_abiertas') {
+    const n = Number(v||0);
+    const badge = n > 0 ? `<span class="badge badge-red">🔔 ${n}</span>` : `<span class="badge">0</span>`;
+    return `<td>${badge}</td>`;
+  }
+  return `<td>${v}</td>`;
+}).join('');
+;
+
+    return `<tr>${tds}
+      <td class="t-actions">
+        <button class="btn btn-ghost" onclick="editar('${r.id}')">Editar</button>
+    <button class="btn btn-ghost" onclick="verAlertas('${r.id}','${(r["Nombres y apellidos"]||"").replace(/"/g,"'")}')">Alertas</button>
+      </td>
+    </tr>`;
+  }).join('') + '</tbody>';
+
+  // 👇 ESTA ES LA LÍNEA CLAVE QUE FALTABA 👇
+cont.innerHTML = `
+  <div class="table-scroll">
+    <table class="table">${thead}${tbody}</table>
+  </div>`;
+}
+
+
+
+function setSelectValue(el, value) {
+  if (!el) return;
+  if (el.multiple) {
+    // Divide por coma o punto y coma
+    const parts = String(value || '')
+      .split(/[,;]\s*/)
+      .filter(Boolean);
+    for (const opt of el.options) {
+      opt.selected = parts.includes(opt.value) || parts.includes(opt.text);
+    }
+  } else {
+    el.value = value ?? '';
+  }
+}
+
+async function editar(id){
+  try {
+    const rec = await window.apiGet(`/api/gestantes/${id}`);
+    editingId = id;
+
+    // llena el formulario completo
+    const form = document.getElementById('form-completo');
+    for (const el of form.elements) {
+      if (!el.name) continue;
+      setSelectValue(el, rec[el.name]);  // <-- aquí el cambio
+    }
+
+    form.scrollIntoView({behavior:'smooth'});
+  } catch(e) {
+    alert('No se pudo cargar el registro: ' + (e?.message || e));
+  }
+}
+
+
+
+    async function cargarTabla() {
+    await loadPage(); // delega en la nueva función
+  }
+
+    async function poblarSelects() {
+      try {
+        const data = await window.apiGet('/api/catalogos');
+        const c = data.catalogos;
+        const fill = (id, arr) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.innerHTML = '<option value=""></option>' + arr.map(v=>`<option>${v}</option>`).join('');
+        };
+        fill('sel-perfil', c["Perfil profesional"]);
+        fill('sel-zona', c["Zona"]);
+        fill('sel-lugar', c["Lugar de captación"]);
+        fill('sel-enfoque', c["Enfoque diferencial"]);
+        fill('sel-multiple', c["Embarazo múltiple"]);
+        fill('sel-ebs', c["Atención por EBS"]);
+        fill('sel-ipse', c["Atención por IPS/ESE"]);
+        fill('sel-vacuna', c["Estado vacunación materna"]);
+        fill('sel-consejeria', c["Consejería recibida"]);
+        fill('sel-tamizajes', c["Tamizajes reportados"]);
+        fill('sel-alarma', c["Signos de alarma"]);
+        fill('sel-psico', c["Factores psicosociales"]);
+        fill('sel-barreras', c["Barreras de acceso"]);
+        fill('sel-canalizacion', c["Tipo de canalización"]);
+        fill('sel-resultado', c["Resultado canalización"]);
+      } catch (e) {
+        console.error("Catálogos:", e);
+      }
+    }
+
+    
+async function enviarCompleto(ev){
+  ev.preventDefault();
+
+  const form = document.getElementById('form-completo');
+
+  // 1) Tomamos todos los campos con FormData
+  const fd = new FormData(form);
+
+  // 2) Consolidamos claves repetidas (select multiple) en arrays
+  const agrupado = {};
+  for (const [k, v] of fd.entries()) {
+    if (agrupado[k] === undefined) agrupado[k] = v;
+    else if (Array.isArray(agrupado[k])) agrupado[k].push(v);
+    else agrupado[k] = [agrupado[k], v];
+  }
+
+  // 3) Convertimos arrays a "A; B; C" y dejamos strings tal cual
+  const payload = {};
+  for (const k in agrupado) {
+    payload[k] = Array.isArray(agrupado[k]) ? agrupado[k].join('; ') : agrupado[k];
+  }
+
+  try {
+    if (editingId) {
+      await window.apiPut(`/api/gestantes/${editingId}`, payload);
+      alert('✅ Registro actualizado');
+    } else {
+      await window.apiPost('/api/gestantes', payload);
+      alert('✅ Registro creado');
+      form.reset();
+    }
+    await cargarTabla();
+  } catch (e) {
+    alert('Error al guardar: ' + (e?.message || e));
+  }
+}
+
+    // quita los addEventListener('DOMContentLoaded', ...)
+// y agrega esto en su lugar:
+window.initUI = async () => {
+  await poblarSelects();
+  await cargarTabla();
+  await cargarResumenAlertas();
+
+  const ps = document.getElementById('pageSize');
+  const qInput = document.getElementById('q');
+  if (ps) ps.addEventListener('change', () => { state.page = 1; loadPage(); });
+  if (qInput) qInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
+};
+
+async function cargarResumenAlertas() {
+  try {
+    const res = await window.apiGet('/api/alertas/resumen');
+    const cont = document.getElementById('alertas-resumen');
+    if (!res || !Object.keys(res).length) {
+      cont.innerHTML = '<p class="muted">Sin datos de alertas.</p>';
+      return;
+    }
+    // Construimos una tabla
+let rows = Object.entries(res).map(([tipo, vals]) => {
+  const {detectadas=0, resueltas=0, pendientes=0} = vals||{};
+  const p = (detectadas>0) ? Math.round((resueltas/detectadas)*100) : 0;
+  return `<tr>
+    <td>${tipo}</td>
+    <td>${detectadas}</td>
+    <td>${resueltas}</td>
+    <td>${pendientes}</td>
+    <td>${p}%</td>
+  </tr>`;
+}).join('');
+
+
+    cont.innerHTML = `
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Tipo de alerta</th>
+            <th>Detectadas</th>
+            <th>Resueltas</th>
+            <th>Pendientes</th>
+            <th>% Resueltas</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch (e) {
+    console.error(e);
+    const cont = document.getElementById('alertas-resumen');
+    if (cont) cont.innerHTML = '<p class="muted">No se pudo cargar el resumen</p>';
+  }
+}
+
+function badgeEstado(estado){
+  const e = String(estado||'').toUpperCase();
+  if (e === 'CERRADA') return '<span class="badge" style="border-color:#bbf7d0;background:#dcfce7;color:#14532d">CERRADA</span>';
+  if (e === 'ATENDIDA') return '<span class="badge" style="border-color:#dbeafe;background:#eff6ff;color:#1e3a8a">ATENDIDA</span>';
+  if (e === 'CANALIZADA') return '<span class="badge" style="border-color:#fef9c3;background:#fefce8;color:#854d0e">CANALIZADA</span>';
+  if (e === 'ABIERTA') return '<span class="badge badge-red">ABIERTA</span>';
+  return `<span class="badge">${estado||''}</span>`;
+}
+
+
+
+// ========= Helpers de riesgo (cliente) =========
+function parseMulti(s){ return String(s||'').split(/[,;]\s*/).filter(Boolean); }
+function toInt(v){ const n = parseInt(String(v||'').trim(),10); return isNaN(n)?0:n; }
+
+function riesgoColorLocal(g){
+  const edad = toInt(g["Edad"]);
+  const eg   = toInt(g["Semanas de gestación (EG)"]);
+  const cpn  = toInt(g["N° de controles prenatales (CPN)"]);
+  const mult = String(g["Embarazo múltiple"]||'').toLowerCase()==='sí';
+  const signos = parseMulti(g["Signos de alarma"]).map(x=>x.toLowerCase());
+  const psico  = parseMulti(g["Factores psicosociales"]);
+  const vacunas = parseMulti(g["Estado vacunación materna"]);
+  const barreras = parseMulti(g["Barreras de acceso"]);
+
+  const rojo = (edad>0 && edad<18) ||
+               mult ||
+               signos.some(x=>x!=="ninguno") ||
+               (eg>=12 && cpn===0) ||
+               (psico.length>0);
+  if (rojo) return "Rojo";
+
+  const amarillo = (cpn<4 && eg>=20) ||
+                   (barreras.length>=1) ||
+                   vacunas.some(v=>/\bNo\b/i.test(v)); // “Tdap No”, “Influenza No”
+  if (amarillo) return "Amarillo";
+
+  return "Verde";
+}
+
+function riesgoRazones(g){
+  const razones=[];
+  const edad = toInt(g["Edad"]);
+  const eg   = toInt(g["Semanas de gestación (EG)"]);
+  const cpn  = toInt(g["N° de controles prenatales (CPN)"]);
+  const mult = String(g["Embarazo múltiple"]||'').toLowerCase()==='sí';
+  const signos = parseMulti(g["Signos de alarma"]).filter(x=>x && x.toLowerCase()!=="ninguno");
+  const psico  = parseMulti(g["Factores psicosociales"]);
+  const vacunasNo = parseMulti(g["Estado vacunación materna"]).filter(v=>/\bNo\b/i.test(v));
+  const barreras = parseMulti(g["Barreras de acceso"]);
+
+  if (edad>0 && edad<18) razones.push("Adolescente (<18 años)");
+  if (mult) razones.push("Embarazo múltiple");
+  if (eg>=12 && cpn===0) razones.push("EG ≥12 y 0 CPN");
+  if (signos.length) razones.push("Signos de alarma: " + signos.join(", "));
+  if (psico.length)  razones.push("Factores psicosociales: " + psico.join(", "));
+  if (vacunasNo.length) razones.push("Vacunación incompleta: " + vacunasNo.join(", "));
+  if (barreras.length) razones.push("Barreras de acceso: " + barreras.join(", "));
+  return razones.length ? razones : ["Sin motivos activos detectados"];
+}
+
+function badgeRiesgo(color){
+  const cls = color==="Rojo" ? "riesgo-rojo" : color==="Amarillo" ? "riesgo-amarillo" : "riesgo-verde";
+  return `<b class="${cls}">${color}</b>`;
+}
+
+
+async function verAlertas(gestanteId, nombre){
+  try{
+    // Trae datos de la gestante + sus alertas en paralelo
+    const [gest, respAlertas] = await Promise.all([
+      window.apiGet(`/api/gestantes/${gestanteId}`),
+      window.apiGet(`/api/alertas?gestante_id=${encodeURIComponent(gestanteId)}`)
+    ]);
+
+    const items = respAlertas.items || [];
+    const abiertas = items.filter(a => ["ABIERTA","CANALIZADA","ATENDIDA"].includes(String(a.estado||"").toUpperCase()));
+    const cerradas = items.filter(a => String(a.estado||"").toUpperCase()==="CERRADA");
+
+    const color = riesgoColorLocal(gest);
+    const motivos = riesgoRazones(gest);
+
+    const cont = document.getElementById('alertas-gestante');
+    const card = document.getElementById('card-alertas-gestante');
+
+    // --- Panel de Resumen de riesgos ---
+    let html = `
+      <div class="subpanel">
+        <div class="subpanel-head">
+          <h4>Resumen de riesgos</h4>
+        </div>
+        <div style="padding:10px 12px">
+          <p><b>Gestante:</b> ${nombre||gestanteId}</p>
+          <p><b>Semáforo actual:</b> ${badgeRiesgo(color)}
+             <span class="chip-warn" title="abiertas/cerradas">Alertas abiertas: ${abiertas.length}</span>
+             <span class="badge" style="margin-left:6px;">Cerradas: ${cerradas.length}</span>
+          </p>
+          <ul style="margin:6px 0 0 18px;">${motivos.map(m=>`<li>${m}</li>`).join("")}</ul>
+        </div>
+      </div>
+    `;
+
+    // --- Tabla de alertas ---
+    if (!items.length){
+      html += `<p class="muted">Sin alertas para esta gestante.</p>`;
+    } else {
+      html += `<table class="table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Prioridad</th>
+            <th>Generada</th>
+            <th>Estado</th>
+            <th>Canalización</th>
+            <th>Atención efectiva</th>
+            <th>Evidencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map(a => {
+            const pr = (a.prioridad||'').toUpperCase();
+            const pCls = pr==='ROJO'?'riesgo-rojo':(pr==='AMARILLO'?'riesgo-amarillo':'riesgo-verde');
+            const estado = badgeEstado(a.estado);
+            return `<tr>
+              <td>${a.tipo_alerta||''}</td>
+              <td class="${pCls}">${a.prioridad||''}</td>
+              <td>${a.fecha_generacion||''}</td>
+              <td>${estado}</td>
+              <td>${a.fecha_canalizacion||''} ${a.canalizacion_tipo?`<span class="badge">${a.canalizacion_tipo}</span>`:''}</td>
+              <td>${a.fecha_atencion_efectiva||''}</td>
+              <td>${a.evidencia_resolucion||''}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+    }
+
+    cont.innerHTML = html;
+    card.style.display = 'block';
+    card.scrollIntoView({behavior:'smooth'});
+  } catch(e){
+    alert('No se pudieron cargar las alertas: ' + (e?.message || e));
+  }
+}
+
+
+  async function loadPage() {
+    try {
+      // lee valores actuales del DOM
+      const qInput = document.getElementById('q');
+      const psSelect = document.getElementById('pageSize');
+      if (qInput) state.q = qInput.value.trim();
+      if (psSelect) state.pageSize = parseInt(psSelect.value || "20", 10);
+
+      const params = new URLSearchParams({
+        page: String(state.page),
+        page_size: String(state.pageSize)
+      });
+      if (state.q) params.append('q', state.q);
+
+      const res = await window.apiGet('/api/gestantes?' + params.toString());
+      renderTabla(res.items);
+      renderPager(res.total, res.page, res.page_size);
+    } catch (e) {
+      console.error("Error cargando página:", e);
+      alert("No se pudo cargar la información");
+    }
+  }
+
+  function renderPager(total, page, pageSize) {
+    const pager = document.getElementById('pager');
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const disablePrev = page <= 1 ? 'disabled' : '';
+    const disableNext = page >= totalPages ? 'disabled' : '';
+
+    let html = `Total: <b>${total}</b> · Página <b>${page}</b> / ${totalPages} `;
+    html += `<button class="btn btn-ghost" ${disablePrev} onclick="goPage(${page-1})">Anterior</button> `;
+    html += `<button class="btn btn-ghost" ${disableNext} onclick="goPage(${page+1})">Siguiente</button> `;
+
+    // salto directo (opcional)
+    html += `&nbsp; Ir a: <input id="goTo" style="width:60px; padding:4px 6px;" 
+                onkeydown="if(event.key==='Enter'){goPage(parseInt(this.value||'1',10));}" placeholder="${page}">`;
+    pager.innerHTML = html;
+  }
+
+  function goPage(p) {
+    if (!Number.isInteger(p) || p < 1) p = 1;
+    state.page = p;
+    loadPage();
+  }
+
+  function doSearch() {
+    state.page = 1; // reinicia a la primera página al buscar
+    loadPage();
+  }
+
+  // cuando cambie el pageSize, vuelve a página 1 y recarga
+  document.addEventListener('DOMContentLoaded', () => {
+    const ps = document.getElementById('pageSize');
+    const qInput = document.getElementById('q');
+    if (ps) ps.addEventListener('change', () => { state.page = 1; loadPage(); });
+    if (qInput) qInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
+  });
+
+
+
+  </script>
+
+  <!-- Firebase + helpers con renovación de token, apiGet/apiPost y logout -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "{{ api_key|safe }}",
+      authDomain: "{{ auth_domain|safe }}",
+      projectId: "{{ project_id|safe }}",
+      storageBucket: "{{ storage_bucket|safe }}"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        localStorage.removeItem('jwt');
+        location.href = '/login';
+        return;
+      }
+      const t = await user.getIdToken(false);
+  localStorage.setItem('jwt', t);
+  // ← inicializa UI cuando ya tienes token
+  if (window.initUI) window.initUI();
+    });
+
+    setInterval(async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const t = await user.getIdToken(true);
+        localStorage.setItem('jwt', t);
+      }
+    }, 45 * 60 * 1000);
+
+    async function apiFetch(url, opts = {}, retry = true) {
+      const token = localStorage.getItem('jwt');
+      const headers = Object.assign({}, opts.headers || {}, { Authorization: 'Bearer ' + token });
+      const r = await fetch(url, Object.assign({}, opts, { headers }));
+      if (r.status === 401 && retry) {
+        const user = auth.currentUser;
+        if (user) {
+          const newT = await user.getIdToken(true);
+          localStorage.setItem('jwt', newT);
+          const newHeaders = Object.assign({}, headers, { Authorization: 'Bearer ' + newT });
+          return fetch(url, Object.assign({}, opts, { headers: newHeaders }));
+        } else {
+          localStorage.removeItem('jwt');
+          location.href = '/login';
+          return r;
+        }
+      }
+      return r;
+    }
+
+    window.apiGet = async (url) => {
+      const r = await apiFetch(url);
+      if (!r.ok) throw new Error(await r.text());
+      return r.json();
+    };
+    window.apiPost = async (url, body) => {
+      const r = await apiFetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!r.ok) throw new Error(await r.text());
+      return r.json();
+    };
+
+window.apiPut = async (url, body) => {
+  const r = await apiFetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+};
+
+
+    window.logout = async () => {
+      try { await signOut(auth); } catch {}
+      localStorage.removeItem('jwt');
+      location.href = '/login';
+    };
+
+</script>
+
+</body>
+</html>

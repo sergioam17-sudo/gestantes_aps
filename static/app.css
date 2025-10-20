@@ -1,0 +1,242 @@
+:root{
+  --bg:#0b1020;
+  --card:#111830;
+  --muted:#9fb0d4;
+  --text:#e6edff;
+  --accent:#5b8cff;
+  --accent-2:#22c55e;
+  --danger:#ef4444;
+  --border:#1e2745;
+  --input:#0f152b;
+  --ring:0 0 0 3px rgba(91,140,255,.25);
+  --radius:14px;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background: linear-gradient(180deg, #f4f6fb 0%, #e9ecf5 100%);
+  color:#1a1a1a;
+  font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial;
+}
+
+/* Topbar */
+.topbar{
+  position:sticky; top:0; z-index:10;
+  backdrop-filter: blur(8px);
+  background:rgba(11,16,32,.75); border-bottom:1px solid var(--border);
+}
+.topbar .bar{
+  display:flex; gap:16px; align-items:center; justify-content:space-between;
+  max-width:1100px; margin:0 auto; padding:14px 18px;
+}
+.brand{font-weight:700; letter-spacing:.2px}
+.brand b{color:var(--accent)}
+.links a{color:var(--muted); text-decoration:none; margin:0 10px}
+.links a:hover{color:var(--text)}
+
+/* Layout */
+.container{max-width:1100px; margin:28px auto; padding:0 18px;}
+
+/* Cards */
+.card{
+  background:linear-gradient(140deg,#0e1530 0%,#0d1328 100%);
+  border:1px solid var(--border); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:18px; margin-bottom:18px;
+}
+.card h3{margin:0 0 12px 0; font-size:18px}
+
+/* Form */
+.form-grid{
+  display:grid; grid-template-columns:repeat(2,minmax(280px,1fr)); gap:12px 16px;
+}
+@media (max-width:900px){ .form-grid{grid-template-columns:1fr} }
+
+.field label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
+.input, .select, .btn{
+  width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border);
+  background:var(--input); color:var(--text); outline:none;
+}
+.input:focus, .select:focus{box-shadow:var(--ring); border-color:var(--accent)}
+.actions{display:flex; gap:10px; margin-top:4px}
+.btn{cursor:pointer}
+.btn-primary{background:linear-gradient(180deg,#5b8cff,#547ee6); border-color:#4a6dd1}
+.btn-primary:hover{filter:brightness(1.05)}
+.btn-ghost{background:transparent; border-color:var(--border)}
+.btn-danger{background:#b62424; border-color:#b62424}
+
+/* Toolbar filtros */
+.toolbar{
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+}
+.toolbar .input, .toolbar .select{max-width:260px}
+.toolbar .select{max-width:120px}
+
+/* Table */
+.table{
+  width:100%; border-collapse:separate; border-spacing:0; overflow:hidden;
+  border:1px solid var(--border); border-radius:12px;
+}
+.table thead th{
+  background:#0f1836; color:#cfe0ff; text-align:left; font-weight:600;
+  padding:10px 12px; border-bottom:1px solid var(--border);
+  position:sticky; top:0;
+}
+.table tbody td{padding:10px 12px; border-bottom:1px solid var(--border)}
+.table tbody tr:nth-child(odd){background:#0c142c}
+.table tbody tr:nth-child(even){background:#0b1226}
+.table .t-actions{white-space:nowrap}
+.badge{padding:4px 8px; border-radius:999px; font-size:12px; border:1px solid var(--border); color:var(--muted)}
+
+/* Pager */
+.pager{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px}
+.pager .btn{width:auto; padding:8px 12px}
+.muted{color:var(--muted)}
+
+/* ===== LIGHT OVERRIDE (al final del archivo) ===== */
+:root{
+  --bg:#ffffff;
+  --card:#ffffff;
+  --text:#1a1a1a;
+  --muted:#5b677a;
+  --border:#e3e7ef;
+  --input:#ffffff;
+}
+
+/* Topbar clara */
+.topbar{
+  background:rgba(255,255,255,.85);
+  border-bottom:1px solid var(--border);
+}
+.links a{color:#3a4a76}
+.links a:hover{color:#111827}
+
+/* Cards e inputs claros */
+.card{
+  background:#fff;
+  border:1px solid var(--border);
+}
+.input, .select{
+  background:#fff; color:#111;
+  border:1px solid var(--border);
+}
+.input:focus, .select:focus{ box-shadow: 0 0 0 3px rgba(91,140,255,.20); }
+
+/* Tabla clara */
+.table{
+  border:1px solid var(--border);
+}
+.table thead th{
+  background:#f8f9fd; color:#111; border-bottom:1px solid var(--border);
+}
+.table tbody tr:nth-child(odd){background:#fff}
+.table tbody tr:nth-child(even){background:#f9fbff}
+
+/* Botones */
+.btn-ghost{ background:#fff; border:1px solid var(--border); color:#111; }
+.btn-primary{ color:#fff; } /* se mantiene el acento */
+
+/* Semáforo */
+.riesgo-rojo { color:#ef4444; font-weight:600; }
+.riesgo-amarillo { color:#eab308; font-weight:600; }
+.riesgo-verde { color:#22c55e; font-weight:600; }
+
+/* Badges de alertas */
+.badge-red {
+  border-color:#fecaca;
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+/* Subpanel incrustado en la misma card */
+.subpanel{
+  margin:8px 0 14px 0;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fff; /* se adapta al modo claro del tema */
+}
+.subpanel-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px; border-bottom:1px solid var(--border);
+  background:#f8f9fd;
+  border-top-left-radius:10px; border-top-right-radius:10px;
+}
+.subpanel h4{ margin:0; font-size:15px; font-weight:600; }
+.subpanel > #alertas-resumen{ padding:10px 12px; }
+
+/* Subpanel incrustado dentro de la card principal */
+.subpanel{
+  margin:10px 0 14px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#fff;
+  overflow:hidden;
+}
+.subpanel-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px; border-bottom:1px solid var(--border);
+  background:#f8f9fd;
+}
+.subpanel-head h4{ margin:0; font-size:16px; font-weight:600; }
+
+/* Tabla del resumen integrada y centrada */
+#alertas-resumen .table{
+  margin:0;
+}
+#alertas-resumen thead th,
+#alertas-resumen tbody td{
+  text-align:center;               /* ⬅ centra todo */
+  padding:8px 10px;
+}
+
+/* Badge de estado ya definido, sumo un leve resaltado para "ABIERTA" dentro del subpanel */
+#card-alertas-gestante .badge-red{
+  border-color:#fecaca;
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+/* --- Acciones: que no se oculte nada y se vean ambos botones --- */
+.table th:last-child,
+.table td.t-actions{
+  width: 240px;               /* espacio fijo suficiente */
+}
+
+.table .t-actions{
+  white-space: normal;         /* ¡permite salto de línea! */
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;             /* si no cabe, baja a la siguiente línea */
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Botón de alertas (si lo usas) más compacto */
+.btn-alert, .btn.btn-ghost{
+  max-width: 100%;
+}
+
+/* --- Contenedor con scroll horizontal para tablas anchas --- */
+.table-scroll{
+  overflow-x: auto;            /* activa desplazamiento si no cabe */
+  -webkit-overflow-scrolling: touch;
+}
+.table-scroll table{
+  min-width: 900px;            /* evita que se aplaste en layouts chicos */
+}
+
+/* En pantallas pequeñas, deja los botones uno debajo del otro para que siempre aparezcan */
+@media (max-width: 900px){
+  .table th:last-child,
+  .table td.t-actions{ width: 100%; }
+  .table .t-actions{ flex-direction: column; align-items: flex-start; }
+}
+
+
+.chip-warn{
+  display:inline-block; margin-left:6px; padding:2px 8px;
+  border-radius:999px; border:1px solid #fecaca; background:#fee2e2; color:#991b1b;
+  font-size:12px;
+}

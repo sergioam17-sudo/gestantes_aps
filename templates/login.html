@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Login - Gestantes APS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+
+<body>
+  <main class="container" style="display:grid; place-items:center; min-height:80vh;">
+    <div class="card" style="max-width:420px; width:100%;">
+      <h3 style="margin-bottom:14px;">Iniciar sesión</h3>
+      <form onsubmit="login(event)" style="display:grid; gap:12px;">
+        <div class="field">
+          <label>Correo</label>
+          <input id="email" class="input" type="email" required />
+        </div>
+        <div class="field">
+          <label>Contraseña</label>
+          <input id="password" class="input" type="password" required />
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Entrar</button>
+          <a class="btn btn-ghost" href="/">Volver</a>
+        </div>
+      </form>
+    </div>
+  </main>
+  <!-- tu script Firebase permanece igual -->
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } 
+    from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+  // Config viene desde main.py como variables de plantilla Jinja
+  const firebaseConfig = {
+    apiKey: "{{ api_key|safe }}",
+    authDomain: "{{ auth_domain|safe }}",
+    projectId: "{{ project_id|safe }}",
+    storageBucket: "{{ storage_bucket|safe }}"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Acción del formulario
+  window.login = async (ev) => {
+    ev.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      // guarda el token para que /home use el backend con Authorization: Bearer
+      const t = await auth.currentUser.getIdToken(true);
+      localStorage.setItem('jwt', t);
+      location.href = '/';
+    } catch (err) {
+      alert("Error de inicio de sesión: " + (err.code || err.message));
+    }
+  };
+
+  // Si ya está logueado, entra directo
+  onAuthStateChanged(auth, (user) => {
+    if (user) location.href = '/';
+  });
+</script>
+
+
+</body>
+
+
+</html>
