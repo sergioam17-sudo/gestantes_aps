@@ -240,3 +240,81 @@ body{
   border-radius:999px; border:1px solid #fecaca; background:#fee2e2; color:#991b1b;
   font-size:12px;
 }
+
+details {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  margin-bottom: 18px;
+  padding: 10px 15px;
+}
+
+details[open] summary {
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+summary {
+  font-weight: 600;
+  font-size: 15px;
+  color: #103c6b;
+  cursor: pointer;
+  list-style: none;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.card h5 {
+  font-size: 15px;
+  color: #1c3b61;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+/* === FORMULARIO DE GESTANTES: TARJETAS UNIFORMES === */
+.card {
+  background:#fff;
+  border:1px solid #e3e7ef;
+  border-radius:12px;
+  padding:18px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.04);
+  margin-bottom:20px;
+}
+.card h5 {
+  font-size:16px;
+  color:#1c3b61;
+  margin-bottom:14px;
+  font-weight:600;
+}
+.form-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:14px 18px;
+}
+
+details > .form-grid {
+  margin-top: 12px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e3e7ef;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card h5 {
+  font-size: 16px;
+  color: #1c3b61;
+  margin-bottom: 14px;
+  font-weight: 600;
+}

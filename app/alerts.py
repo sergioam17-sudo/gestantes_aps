@@ -64,21 +64,6 @@ def _col_idx_to_a1(n:int)->str:
         s=chr(65+r)+s
     return s
 
-def read_alerts() -> List[Dict]:
-    ensure_headers_alertas()
-    svc = _svc()
-    rng = f"'{TAB_ALERTAS}'!A1:Z100000"
-    res = svc.spreadsheets().values().get(
-        spreadsheetId=SPREADSHEET_ID, range=rng
-    ).execute()
-    vals = res.get("values", [])
-    if not vals: return []
-    hdr = vals[0]
-    out=[]
-    for r in vals[1:]:
-        out.append({hdr[i]: (r[i] if i<len(r) else "") for i in range(len(hdr))})
-    return out
-
 def append_alert(row: Dict):
     ensure_headers_alertas()
     svc = _svc()
@@ -153,21 +138,29 @@ def risk_color(gest: Dict) -> str:
     psico  = _parse_multi(gest.get("Factores psicosociales",""))
     vacunas = _parse_multi(gest.get("Estado vacunación materna",""))
     barreras = _parse_multi(gest.get("Barreras de acceso",""))
+    antecedentes_med = _parse_multi(gest.get("Antecedentes médicos", ""))
+    preeclampsia = str(gest.get("Preeclampsia o eclampsia", "")).strip().lower()
+    spa = str(gest.get("Consumo de SPA", "")).strip().lower()
+
 
     rojo = (
         _is_adolescente(edad) or
         mult or
         (any(x for x in signos if x.lower() != "ninguno")) or
         (eg >= 12 and cpn == 0) or
-        any(k for k in psico if k)  # riesgo social presente
+        any(k for k in psico if k) or
+        any(x in antecedentes_med for x in ["Hipertensión", "Diabetes", "Cardiopatía"]) or
+        preeclampsia == "sí"
     )
     if rojo: return "Rojo"
 
     amarillo = (
         (cpn < 4 and eg >= 20) or
         (len(barreras) >= 1) or
-        any("No" in v for v in vacunas)  # esquema incompleto
+        any("No" in v for v in vacunas) or
+        spa == "sí"
     )
+
     if amarillo: return "Amarillo"
     return "Verde"
 
@@ -180,6 +173,35 @@ def generate_alert_types(gest: Dict) -> List[Dict]:
     barreras = _parse_multi(gest.get("Barreras de acceso",""))
 
     out = []
+    # ======== NUEVAS ALERTAS BASADAS EN ANTECEDENTES ========
+    antecedentes_med = _parse_multi(gest.get("Antecedentes médicos", ""))
+    preeclampsia = str(gest.get("Preeclampsia o eclampsia", "")).strip().lower()
+    spa = str(gest.get("Consumo de SPA", "")).strip().lower()
+
+    # Riesgo alto por antecedentes clínicos relevantes
+    if any(x in antecedentes_med for x in ["Hipertensión", "Diabetes", "Cardiopatía"]):
+        out.append({
+            "tipo_alerta": "ANTECEDENTES_MEDICOS",
+            "prioridad": "Rojo",
+            "regla": "Antecedentes clínicos relevantes"
+        })
+
+    # Antecedente de preeclampsia o eclampsia
+    if preeclampsia == "sí":
+        out.append({
+            "tipo_alerta": "PREECLAMPSIA_ANTECEDENTE",
+            "prioridad": "Rojo",
+            "regla": "Antecedente de preeclampsia/eclampsia"
+        })
+
+    # Consumo de sustancias psicoactivas
+    if spa == "sí":
+        out.append({
+            "tipo_alerta": "CONSUMO_SPA",
+            "prioridad": "Amarillo",
+            "regla": "Consumo de SPA reportado"
+        })
+
     if eg >= 12 and cpn == 0:
         out.append({"tipo_alerta":"SIN_CPN","prioridad":"Rojo","regla":"EG>=12 AND CPN=0"})
     if any(x for x in signos if x.lower()!="ninguno"):
@@ -188,6 +210,46 @@ def generate_alert_types(gest: Dict) -> List[Dict]:
         out.append({"tipo_alerta":"NO_VACUNADA","prioridad":"Amarillo","regla":"Tdap/Influenza = No"})
     if len([b for b in barreras if b]) >= 2:
         out.append({"tipo_alerta":"BARRERAS_ACCESO","prioridad":"Amarillo","regla":">=2 barreras"})
+
+
+    # ======== ALERTAS DE CANALIZACIÓN ========
+    canalizacion = str(gest.get("Tipo de canalización", "")).upper()
+    realizada = str(gest.get("Tipo de canalización realizada", "")).upper()
+    fecha_realizada = gest.get("Fecha atención efectiva", "")
+    resultado = str(gest.get("Resultado canalización", "")).upper()
+
+    if canalizacion and not realizada:
+        out.append({
+            "tipo_alerta": "CANALIZACION_PENDIENTE",
+            "prioridad": "Rojo",
+            "regla": f"Canalizada a {canalizacion}, sin atención registrada"
+        })
+
+    elif canalizacion and realizada and any(r in canalizacion for r in realizada.split(",")):
+        if resultado != "ATENDIDA":
+            out.append({
+                "tipo_alerta": "CANALIZACION_PARCIAL",
+                "prioridad": "Amarillo",
+                "regla": f"Atendida parcialmente en {realizada}, pendiente otros servicios"
+            })
+        else:
+            out.append({
+                "tipo_alerta": "CANALIZACION_ATENDIDA",
+                "prioridad": "Verde",
+                "regla": f"Atendida completamente en {realizada} el {fecha_realizada}"
+            })
+
+    elif canalizacion and realizada and not any(r in canalizacion for r in realizada.split(",")):
+        out.append({
+            "tipo_alerta": "CANALIZACION_NO_COINCIDE",
+            "prioridad": "Amarillo",
+            "regla": f"Atención ({realizada}) no coincide con canalización previa ({canalizacion})"
+        })
+
+
+
+
+
     return out
 
 def _now_iso():
@@ -258,6 +320,59 @@ def upsert_alerts_for_gestante(gest: Dict, responsable: str = ""):
         elif t == "BARRERAS_ACCESO":
             barreras = _parse_multi(gest.get("Barreras de acceso", ""))
             resolved = len([b for b in barreras if b]) < 2
+
+
+        elif t == "CANALIZACION_PENDIENTE":
+            # Cierra la alerta si lo realizado coincide con lo canalizado y el resultado es ATENDIDA
+            canalizacion = str(gest.get("Tipo de canalización", "")).upper()
+            realizadas = [x.strip().upper() for x in str(gest.get("Tipo de canalización realizada", "")).split(";") if         x.strip()]
+            resultado = str(gest.get("Resultado canalización", "")).upper()
+            coincide = any(r in canalizacion for r in realizadas)
+
+            if coincide and resultado == "ATENDIDA":
+                # Cerramos la pendiente y registramos trazabilidad básica
+                a_upd = {h: a.get(h, "") for h in ALERT_HEADERS}
+                a_upd["estado"] = "CERRADA"
+                a_upd["fecha_estado"] = _now_iso()
+                a_upd["resuelta"] = "TRUE"
+                # opcional: dejamos evidencia mínima en la misma alerta cerrada
+                a_upd["canalizacion_tipo"] = "; ".join(realizadas)
+                a_upd["fecha_canalizacion"] = str(gest.get("Fecha canalización", ""))
+                a_upd["fecha_atencion_efectiva"] = str(gest.get("Fecha atención efectiva", ""))
+                a_upd["evidencia_resolucion"] = (
+                    a.get("evidencia_resolucion", "") or "Cierre automático por atención efectiva"
+                )
+                update_alert_by_id(a["alerta_id"], a_upd)
+                continue
+        
+        elif t == "CANALIZACION_ATENDIDA":
+            # Cierra automáticamente las alertas verdes de canalización atendida
+            canalizacion = str(gest.get("Tipo de canalización", "")).upper()
+            realizadas = [
+                x.strip().upper()
+                for x in str(gest.get("Tipo de canalización realizada", "")).split(";")
+                if x.strip()
+            ]
+            resultado = str(gest.get("Resultado canalización", "")).upper()
+            coincide = any(r in canalizacion for r in realizadas)
+            fecha_atencion = str(gest.get("Fecha atención efectiva", "")).strip()
+
+            if coincide and resultado == "ATENDIDA" and fecha_atencion:
+                a_upd = {h: a.get(h, "") for h in ALERT_HEADERS}
+                a_upd["estado"] = "CERRADA"
+                a_upd["fecha_estado"] = _now_iso()
+                a_upd["resuelta"] = "TRUE"
+                a_upd["canalizacion_tipo"] = "; ".join(realizadas)
+                a_upd["fecha_canalizacion"] = str(gest.get("Fecha canalización", ""))
+                a_upd["fecha_atencion_efectiva"] = fecha_atencion
+                a_upd["evidencia_resolucion"] = (
+                    a.get("evidencia_resolucion", "")
+                    or "Cierre automático de alerta verde (atención efectiva registrada)"
+                )
+                update_alert_by_id(a["alerta_id"], a_upd)
+                continue
+
+
 
         # Si no debería existir (condición ya no aplica) o está resuelta → cerrar
         if (t not in should_types) or resolved:

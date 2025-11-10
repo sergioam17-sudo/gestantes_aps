@@ -27,12 +27,15 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 
-from googleapiclient.errors import HttpError
+
 
 # Rutas propias
 from app.admin_routes import router as admin_router  # asegúrate de tener app/admin_routes.py
 from app.security import get_scope                   # verifica que exista app/security.py
 from app.sheets import read_all, append_row, HEADERS, update_row_by_id # y app/sheets.py
+
+from app.sheets import append_history  # + lo que ya importas
+
 
 # === Utilidades ===
 
@@ -137,17 +140,26 @@ CATALOGOS = {
     "Perfil profesional": ["Médico", "Enfermero(a)", "Auxiliar", "Otro"],
     "Zona": ["Rural", "Urbana"],
     "Lugar de captación": ["Hogar", "Jornada", "Escuela", "Otro"],
+    "Regimen de salud": ["Sudsidiado", "Contributivo", "Especial", "Otro"],
+    "EPS": ["Nueva EPS", "Fundación SaludMía EPS", "EPS Sura", "EPS Sanitas S.A.", "EPS Famisanar", "Magisterio", "Fiduprevisora", "Comparta", "Otro"],
     "Enfoque diferencial": ["Adolescente", "Migrante", "Víctima VBG", "Discapacidad", "Etnia", "Ninguno"],
     "Embarazo múltiple": ["Sí", "No"],
     "Atención por EBS": ["Sí", "No"],
     "Atención por IPS/ESE": ["Sí", "No"],
-    "Estado vacunación materna": ["Tdap Sí", "Tdap No", "Tdap NA", "Influenza Sí", "Influenza No", "Influenza NA"],
-    "Consejería recibida": ["Signos de alarma", "Planificación posparto", "Lactancia", "PIMAM"],
-    "Tamizajes reportados": ["VDRL", "VIH", "HBsAg", "Orina – Tomado", "Orina – No tomado"],
-    "Signos de alarma": ["Cefalea", "Fiebre", "Sangrado", "Dolor abdominal", "Ninguno"],
-    "Factores psicosociales": ["VBG", "Consumo SPA", "Apoyo familiar ausente", "Inseguridad alimentaria"],
+    "Estado vacunación materna": ["Tdap Sí", "Tdap No", "Tdap NA", "Influenza Sí", "Influenza No", "Influenza NA", "Covid-19 Sí", "Covid-19 No", "Covid-19 NA","VSR Sí", "VSR No", "VSR NA"],
+    "Consejería recibida": ["Signos de alarma", "Planificación posparto", "Lactancia", "Nutrición"],
+    "Tamizajes reportados": ["VDRL - Sifilis", "VIH", "HBsAg", "Orina – Tomado", "Orina – No tomado", "Cuadro hematico o hemoglobina"],
+    "Antecedentes familiares": ["Hipertensión arterial", "Diabetes mellitus", "Malformaciones congénitas", "Ninguno"],
+    "Antecedentes obstétricos": ["Aborto previo", "Parto pretérmino", "Cesárea previa", "Ninguno"],
+    "Antecedentes médicos": ["Hipertensión", "Diabetes", "Cardiopatía", "Epilepsia", "Ninguno"],
+    "Preeclampsia o eclampsia": ["Sí", "No"],
+    "Enfermedades crónicas actuales": ["Hipertensión", "Diabetes", "Asma", "Otra", "Ninguna"],
+    "Consumo de SPA": ["Sí", "No"],
+    "Signos de alarma": ["Cefalea", "Fiebre", "Sangrado", "Dolor abdominal","Edema miembros superiores o inferiores","Prurito en manos y pies","Perdida de liquido","Visión borrosa", "Ausencia de movimiento de bebe", "Ardor o sangrado al orinar", "Vomito severo", "Ninguno"],
+    "Factores psicosociales": ["VBG - Violencia Basada en genero", "Consumo SPA", "Apoyo familiar ausente", "Inseguridad alimentaria"],
     "Barreras de acceso": ["Transporte", "Horarios", "Distancia", "Cuidado de hijos", "Afiliación"],
     "Tipo de canalización": ["CPN", "Vacunación", "Salud oral", "Lab", "Trabajo social", "Otro"],
+    "Tipo de canalización realizada": ["CPN", "Vacunación", "Salud oral", "Psicosocial", "Planificación Familiar", "Otro"],
     "Resultado canalización": ["Atendida", "No asistió", "Reprogramada", "Pendiente"],
 }
 
@@ -175,6 +187,20 @@ def _parse_iso_date(s: Optional[str]) -> Optional[datetime]:
             return datetime(int(y), int(m), int(d))
         except Exception:
             raise HTTPException(status_code=400, detail=f"Fecha inválida: {s}. Usa YYYY-MM-DD o dd/mm/yyyy.")
+
+
+@app.get("/api/usuario/municipio")
+def usuario_municipio(scope=Depends(get_scope)):
+    """Devuelve el municipio asignado al usuario actual."""
+    role, muni_list, user = scope
+    return {
+        "role": role,
+        "municipios": muni_list or [],
+        "email": user.get("email", "")
+    }
+
+
+
 
 @app.get("/api/gestantes")
 def listar_gestantes(
@@ -266,7 +292,6 @@ def listar_gestantes(
 
 
 @app.post("/api/gestantes")
-
 def crear_gestante(item: dict = Body(...), scope=Depends(get_scope)):
     """
     Crea un registro en la hoja. Restringe por municipio del usuario si no es admin.
@@ -276,17 +301,33 @@ def crear_gestante(item: dict = Body(...), scope=Depends(get_scope)):
     email = user.get("email", "desconocido")
 
     muni = str(item.get(MUNI_COL, "")).upper().strip()
+
+    # --- Validación de municipio (no admin) ---
     if role != "admin":
-        user_muni = set([m.upper().strip() for m in muni_list])
-        if not user_muni or muni not in user_muni:
+        def normalize(s: str) -> str:
+            return (
+                str(s)
+                .strip()
+                .replace("Á", "A")
+                .replace("É", "E")
+                .replace("Í", "I")
+                .replace("Ó", "O")
+                .replace("Ú", "U")
+                .upper()
+            )
+
+        user_muni = set([normalize(m) for m in (muni_list or [])])
+        muni_norm = normalize(muni)
+
+        if not user_muni or muni_norm not in user_muni:
             raise HTTPException(status_code=403, detail="No puedes crear en otro municipio")
 
-        # Validación mínima obligatoria
+    # --- Validación mínima obligatoria ---
     for f in [MUNI_COL, "Nombres y apellidos", "Tipo y N° de identificación"]:
         if not str(item.get(f, "")).strip():
             raise HTTPException(status_code=400, detail=f"Falta el campo obligatorio: {f}")
 
-    # Rango de edad (si viene)
+    # --- Rango de edad ---
     if "Edad" in item and str(item["Edad"]).strip():
         try:
             edad = int(item["Edad"])
@@ -295,7 +336,7 @@ def crear_gestante(item: dict = Body(...), scope=Depends(get_scope)):
         except ValueError:
             raise HTTPException(status_code=400, detail="Edad debe ser numérica")
 
-    # Rango semanas EG (si viene)
+    # --- Rango semanas EG ---
     if "Semanas de gestación (EG)" in item and str(item["Semanas de gestación (EG)"]).strip():
         try:
             eg = int(item["Semanas de gestación (EG)"])
@@ -304,13 +345,13 @@ def crear_gestante(item: dict = Body(...), scope=Depends(get_scope)):
         except ValueError:
             raise HTTPException(status_code=400, detail="EG debe ser numérica")
 
-    # Auditoría y defaults
+    # --- Auditoría y defaults ---
     now = datetime.now().isoformat(timespec="seconds")
     item.setdefault("id", str(int(datetime.now().timestamp())))
     item.setdefault("usuario_registra", email)
     item.setdefault("timestamp", now)
 
-    # Normaliza fechas a texto limpio (el ingreso a Sheets es string)
+    # --- Normaliza fechas ---
     for k in [
         "Fecha de captación",
         "Fecha última menstruación (FUM) o eco",
@@ -321,10 +362,12 @@ def crear_gestante(item: dict = Body(...), scope=Depends(get_scope)):
         if k in item and isinstance(item[k], str):
             item[k] = item[k].strip()
 
-    # Validaciones de consistencia de fechas (si están todas)
+    # --- Validaciones de consistencia de fechas ---
     def to_dt(s):
-        if not s: return None
-        try: return datetime.fromisoformat(s)
+        if not s:
+            return None
+        try:
+            return datetime.fromisoformat(s)
         except Exception:
             try:
                 d, m, y = s.split("/")
@@ -344,9 +387,16 @@ def crear_gestante(item: dict = Body(...), scope=Depends(get_scope)):
     if f_ate and f_can and f_ate < f_can:
         raise HTTPException(status_code=400, detail="Fecha atención efectiva debe ser ≥ Fecha canalización")
 
-    # Asegura columnas para Sheets
+    # --- Asegura columnas ---
     safe = {h: item.get(h, "") for h in HEADERS}
 
+    # --- Evita duplicados ---
+    data_existente = read_all()
+    documento = str(item.get("Tipo y N° de identificación", "")).strip()
+    if documento and any(str(x.get("Tipo y N° de identificación", "")).strip() == documento for x in data_existente):
+        raise HTTPException(status_code=400, detail="Ya existe una gestante registrada con este documento.")
+
+    # --- Inserta fila ---
     try:
         append_row(safe)
     except HttpError as e:
@@ -354,13 +404,28 @@ def crear_gestante(item: dict = Body(...), scope=Depends(get_scope)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error interno al escribir en Sheets: {e}") from e
 
+    # --- HISTORIAL: CREAR ---
+    try:
+        diff = {k: safe.get(k, "") for k in HEADERS}
+        append_history(
+            gestante_id=safe["id"],
+            accion="CREAR",
+            cambiado_por=email,
+            diff=diff,
+            snapshot=safe,
+            fecha_cambio_iso=now,
+        )
+    except Exception as e:
+        print(f"[WARN] No se pudo registrar historial (crear): {e}")
+
+    # --- ALERTAS ---
     try:
         upsert_alerts_for_gestante(safe, email)
     except Exception as e:
         print(f"[WARN] No se pudo actualizar alertas (crear): {e}")
 
-
     return {"ok": True, "id": safe["id"]}
+
 
 # Obtener 1 registro por id
 @app.get("/api/gestantes/{rec_id}")
@@ -375,6 +440,66 @@ def obtener_gestante(rec_id: str, scope=Depends(get_scope)):
         if str(item.get(MUNI_COL, "")).upper().strip() not in muni_set:
             raise HTTPException(status_code=403, detail="Sin permiso para ver este registro")
     return item
+
+
+from fastapi import Query
+
+
+
+@app.get("/api/gestantes/{rec_id}/historial")
+def historial_gestante(rec_id: str, scope=Depends(get_scope)):
+    from app.sheets import _service, SPREADSHEET_ID, HISTORY_TAB, HISTORY_HEADERS, _col_idx_to_a1, read_all
+    svc = _service()
+    role, muni_list, user = scope
+
+    # Validación de permisos
+    data = read_all()
+    registro = next((x for x in data if str(x.get("id")) == str(rec_id)), None)
+    if not registro:
+        raise HTTPException(status_code=404, detail="No encontrado")
+    if role != "admin":
+        muni_set = set([m.upper().strip() for m in muni_list])
+        if str(registro.get("Municipio", "")).upper().strip() not in muni_set:
+            raise HTTPException(status_code=403, detail="Sin permiso para ver el historial de este municipio")
+
+    # Lectura del historial
+    end_col = _col_idx_to_a1(len(HISTORY_HEADERS))
+    rng = f"{HISTORY_TAB}!A1:{end_col}100000"
+    resp = svc.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range=rng).execute()
+    values = resp.get("values", []) or []
+    if len(values) <= 1:
+        return {"items": [], "total": 0}
+
+    header = values[0]
+    gid_idx = next((i for i, h in enumerate(header) if h.strip().lower() == "gestante_id"), None)
+    if gid_idx is None:
+        raise HTTPException(status_code=500, detail="Columna 'gestante_id' no encontrada en hoja de historial")
+
+    items = []
+    for r in values[1:]:
+        if gid_idx < len(r):
+            val = str(r[gid_idx]).strip()
+            rec_cmp = str(rec_id).strip()
+            if val.endswith(".0"):
+                val = val[:-2]
+            if rec_cmp.endswith(".0"):
+                rec_cmp = rec_cmp[:-2]
+            if val == rec_cmp:
+                fila = {header[i]: (r[i] if i < len(r) else "") for i in range(len(header))}
+                items.append(fila)
+
+    # Ordena por versión
+    def _key(x):
+        try:
+            return int(x.get("version", 0))
+        except:
+            return 0
+    items.sort(key=_key)
+
+    return {"items": items, "total": len(items)}
+
+
+
 
 # Actualizar (complementar) por id
 @app.put("/api/gestantes/{rec_id}")
@@ -406,10 +531,43 @@ def actualizar_gestante(
     merged["usuario_registra"] = email
     merged["timestamp"] = datetime.now().isoformat(timespec="seconds")
 
+    # --- DIFF para historial ---
+    def _diff(before: dict, after: dict) -> dict:
+        d = {}
+        for k in HEADERS:
+            b = before.get(k, "")
+            a = after.get(k, "")
+            if str(b) != str(a):
+                # guarda solo lo que cambió; si prefieres, guarda [antes, despues]
+                d[k] = {"antes": b, "despues": a}
+        return d
+
+    cambios = _diff(current, merged)
+    fecha_cambio = merged["timestamp"]
+
+
+
     try:
         update_row_by_id(rec_id, merged)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"No se pudo actualizar: {e}") from e
+
+
+    # --- HISTORIAL: ACTUALIZAR ---
+    try:
+        append_history(
+            gestante_id=rec_id,
+            accion="ACTUALIZAR",
+            cambiado_por=email,
+            diff=cambios,
+            snapshot=merged,
+            fecha_cambio_iso=fecha_cambio
+        )
+    except Exception as e:
+        print(f"[WARN] No se pudo registrar historial (actualizar): {e}")
+
+
+
 
     try:
         upsert_alerts_for_gestante(merged, email)
@@ -456,13 +614,20 @@ def api_list_alertas(
 
     # ordenar por fecha_generacion desc si existe
     def key_dt(a):
-        iso = a.get("fecha_generacion","") or ""
+        iso = a.get("fecha_generacion", "") or ""
         try:
             from datetime import datetime
             return datetime.fromisoformat(iso)
         except:
             return None
-    out.sort(key=lambda a: (key_dt(a) or ""), reverse=True)
+
+    # 🔧 Evita mezclar tipos al ordenar (usa timestamp numérico)
+    def safe_timestamp(a):
+        dt = key_dt(a)
+        return dt.timestamp() if dt else 0
+
+    out.sort(key=safe_timestamp, reverse=True)
+
 
     return {"items": out, "total": len(out)}
 

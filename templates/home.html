@@ -22,169 +22,197 @@
     <div class="card">
       <h3>Formulario completo</h3>
       <form id="form-completo" onsubmit="enviarCompleto(event)">
-        <div class="form-grid">
-          <!-- Añadimos .field + .input/.select; NO cambiamos name/id -->
-          <div class="field">
-            <label>Fecha de captación</label>
-            <input class="input" type="date" name="Fecha de captación">
-          </div>
+        <!-- Formulario modular con secciones colapsables -->
 
-          <div class="field">
-            <label>Perfil profesional</label>
-            <select class="select" name="Perfil profesional" id="sel-perfil"></select>
-          </div>
+<div class="formulario">
+
+  <!-- SECCIÓN 1 -->
+  <details open>
+    <summary>🩺 Identificación de la Gestante</summary>
+    <div class="form-grid">
+      <div class="field"><label>Fecha de captación</label><input class="input" type="date" name="Fecha de captación"></div>
+      <div class="field"><label>Perfil profesional</label><select class="select" name="Perfil profesional" id="sel-perfil"></select></div>
+      <div class="field"><label>Lugar de captación</label><select class="select" name="Lugar de captación" id="sel-lugar"></select></div>
+      <div class="field"><label>Tipo y N° de identificación de la gestante</label><input class="input" name="Tipo y N° de identificación" required></div>
+      <div class="field"><label>Nombres y apellidos de la gestante</label><input class="input" name="Nombres y apellidos" required></div>
+      <div class="field"><label>Edad</label><input class="input" type="number" name="Edad" min="10" max="55"></div>
+      <div class="field"><label>Teléfono(s)</label><input class="input" name="Teléfono(s) de contacto" pattern="[0-9]{7,10}"></div>
+      <div class="field"><label>Dirección / Ubicación</label><input class="input" name="Dirección / Ubicación"></div>
+      <div class="field">
+        <label>Régimen de salud</label>
+        <select class="select" name="Regimen de salud" id="Regimen de salud"></select>
+      </div>
+
+      <div class="field">
+        <label>EPS</label>
+        <select class="select" name="EPS" id="EPS"></select>
+      </div>
+
+      <div class="field">
+        <label>Zona</label>
+        <select class="select" name="Zona" id="sel-zona"></select>
+      </div>
+
+      <div class="field">
+        <label>Territorio</label>
+        <input class="input" name="Territorio">
+      </div>
+
+      <div class="field">
+        <label>Microterritorio</label>
+        <input class="input" name="Microterritorio">
+      </div>
 
 
-          <div class="field">
-            <label>Lugar de captación</label>
-            <select class="select" name="Lugar de captación" id="sel-lugar"></select>
-          </div>
 
-          <div class="field">
-            <label>Tipo y N° de identificación</label>
-            <input class="input" name="Tipo y N° de identificación" required>
-          </div>
+      <input class="input" id="input-municipio" name="Municipio" required readonly>
+      <div class="field"><label>Enfoque diferencial</label><select class="select" name="Enfoque diferencial" id="sel-enfoque"></select></div>
+    </div>
+  </details>
 
-          <div class="field">
-            <label>Nombres y apellidos</label>
-            <input class="input" name="Nombres y apellidos" required>
-          </div>
+  <!-- SECCIÓN 2 -->
+  <details>
+    <summary>🤰 Situación Obstétrica Actual</summary>
+    <div class="form-grid">
+      <div class="field"><label>Semanas de gestación (EG)</label><input class="input" type="number" name="Semanas de gestación (EG)" min="4" max="42"></div>
+      <div class="field"><label>Embarazo múltiple</label><select class="select" name="Embarazo múltiple" id="sel-multiple"></select></div>
+      <div class="field"><label>Fecha última menstruación (FUM)</label><input class="input" type="date" name="Fecha última menstruación (FUM) o eco"></div>
+      <div class="field"><label>N° de controles prenatales (CPN)</label><input class="input" type="number" name="N° de controles prenatales (CPN)" min="0"></div>
+      <div class="field"><label>Fecha último CPN</label><input class="input" type="date" name="Fecha último CPN"></div>
+    </div>
 
-          <div class="field">
-            <label>Edad</label>
-            <input class="input" type="number" name="Edad" min="10" max="55">
-          </div>
 
-          <div class="field">
-            <label>Teléfono(s) de contacto</label>
-            <input class="input" name="Teléfono(s) de contacto" pattern="[0-9]{7,10}">
-          </div>
+      <div class="field">
+        <label>Atención por EBS</label>
+        <select class="select" name="Atención por EBS" id="sel-ebs"></select>
+      </div>
 
-          <div class="field">
-            <label>Dirección / Ubicación</label>
-            <input class="input" name="Dirección / Ubicación">
-          </div>
+      <div class="field">
+        <label>Atención por IPS/ESE</label>
+        <select class="select" name="Atención por IPS/ESE" id="sel-ipse"></select>
+      </div>
 
-          <div class="field">
-            <label>Municipio</label>
-            <input class="input" name="Municipio" required>
-          </div>
+      <div class="field">
+        <label>N° atenciones por EBS</label>
+        <input class="input" type="number" name="N° atenciones por EBS" min="0">
+      </div>
 
-          <div class="field">
-            <label>Zona</label>
-            <select class="select" name="Zona" id="sel-zona"></select>
-          </div>
 
-          <div class="field">
-            <label>Territorio</label>
-            <input class="input" name="Territorio" required>
-          </div>
+  </details>
 
-          <div class="field">
-            <label>Microterritorio</label>
-            <input class="input" name="Microterritorio" required>
-          </div>
 
-          <div class="field">
-            <label>Enfoque diferencial</label>
-            <select class="select" name="Enfoque diferencial" id="sel-enfoque"></select>
-          </div>
+  <!-- SECCIÓN 3 -->
 
-          <div class="field">
-            <label>Semanas de gestación (EG)</label>
-            <input class="input" type="number" name="Semanas de gestación (EG)" min="4" max="42">
-          </div>
+<details>
+  <summary>🧬 Antecedentes Clínicos y Familiares</summary>
 
-          <div class="field">
-            <label>Embarazo múltiple</label>
-            <select class="select" name="Embarazo múltiple" id="sel-multiple"></select>
-          </div>
+  <div class="form-grid">
+    <div class="section-inner" style="grid-column:1 / -1;">
+      <h5 style="font-size:16px; color:#1c3b61; margin-bottom:16px;">Antecedentes de la Gestante</h5>
 
-          <div class="field">
-            <label>Fecha última menstruación (FUM) o eco</label>
-            <input class="input" type="date" name="Fecha última menstruación (FUM) o eco">
-          </div>
-
-          <div class="field">
-            <label>N° de controles prenatales (CPN)</label>
-            <input class="input" type="number" name="N° de controles prenatales (CPN)" min="0">
-          </div>
-
-          <div class="field">
-            <label>Fecha último CPN</label>
-            <input class="input" type="date" name="Fecha último CPN">
-          </div>
-
-          <div class="field">
-            <label>Atención por EBS</label>
-            <select class="select" name="Atención por EBS" id="sel-ebs"></select>
-          </div>
-
-          <div class="field">
-            <label>Atención por IPS/ESE</label>
-            <select class="select" name="Atención por IPS/ESE" id="sel-ipse"></select>
-          </div>
-
-          <div class="field">
-            <label>N° atenciones por EBS</label>
-            <input class="input" type="number" name="N° atenciones por EBS" min="0">
-          </div>
-
-          <div class="field">
-            <label>Estado vacunación materna</label>
-            <select class="select" name="Estado vacunación materna" id="sel-vacuna" multiple size="6"></select>
-          </div>
-
-          <div class="field">
-            <label>Consejería recibida</label>
-            <select class="select" name="Consejería recibida" id="sel-consejeria" multiple size="6"></select>
-          </div>
-
-          <div class="field">
-            <label>Tamizajes reportados</label>
-            <select class="select" name="Tamizajes reportados" id="sel-tamizajes" multiple size="6"></select>
-          </div>
-
-          <div class="field">
-            <label>Signos de alarma</label>
-            <select class="select" name="Signos de alarma" id="sel-alarma" multiple size="6"></select>
-          </div>
-
-          <div class="field">
-            <label>Factores psicosociales</label>
-            <select class="select" name="Factores psicosociales" id="sel-psico" multiple size="6"></select>
-          </div>
-
-          <div class="field">
-            <label>Barreras de acceso</label>
-            <select class="select" name="Barreras de acceso" id="sel-barreras" multiple size="6"></select>
-          </div>
-
-          <div class="field">
-            <label>Tipo de canalización</label>
-            <select class="select" name="Tipo de canalización" id="sel-canalizacion" multiple size="6"></select>
-          </div>
-
-          <div class="field">
-            <label>Fecha canalización</label>
-            <input class="input" type="date" name="Fecha canalización">
-          </div>
-
-          <div class="field">
-            <label>Fecha atención efectiva</label>
-            <input class="input" type="date" name="Fecha atención efectiva">
-          </div>
-
-          <div class="field">
-            <label>Resultado canalización</label>
-            <select class="select" name="Resultado canalización" id="sel-resultado"></select>
-          </div>
-
-          <div class="field" style="grid-column:1/-1">
-            <label>Observaciones</label>
-            <input class="input" name="Observaciones">
-          </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Antecedentes familiares</label>
+          <select class="select" name="Antecedentes familiares" multiple size="4">
+            <option>Hipertensión arterial</option>
+            <option>Diabetes mellitus</option>
+            <option>Malformaciones congénitas</option>
+            <option>Ninguno</option>
+          </select>
         </div>
+
+        <div class="field">
+          <label>Antecedentes médicos</label>
+          <select class="select" name="Antecedentes médicos" multiple size="4">
+            <option>Hipertensión</option>
+            <option>Diabetes</option>
+            <option>Cardiopatía</option>
+            <option>Epilepsia</option>
+            <option>Ninguno</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Enfermedades crónicas actuales</label>
+          <select class="select" name="Enfermedades crónicas actuales" multiple size="4">
+            <option>Hipertensión</option>
+            <option>Diabetes</option>
+            <option>Asma</option>
+            <option>Otra</option>
+            <option>Ninguna</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Antecedentes obstétricos</label>
+          <select class="select" name="Antecedentes obstétricos" multiple size="4">
+            <option>Aborto previo</option>
+            <option>Parto pretérmino</option>
+            <option>Cesárea previa</option>
+            <option>Ninguno</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Antecedente de preeclampsia/eclampsia</label>
+          <select class="select" name="Preeclampsia o eclampsia">
+            <option></option>
+            <option>Sí</option>
+            <option>No</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Consumo de SPA</label>
+          <select class="select" name="Consumo de SPA">
+            <option></option>
+            <option>Sí</option>
+            <option>No</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</details>
+
+
+  <!-- SECCIÓN 4 -->
+  <details>
+    <summary>🏠 Condiciones Sociales y Barreras</summary>
+    <div class="form-grid">
+      <div class="field"><label>Factores psicosociales</label><select class="select" name="Factores psicosociales" id="sel-psico" multiple size="5"></select></div>
+      <div class="field"><label>Barreras de acceso</label><select class="select" name="Barreras de acceso" id="sel-barreras" multiple size="5"></select></div>
+    </div>
+  </details>
+
+  <!-- SECCIÓN 5 -->
+  <details>
+    <summary>🔁 Vacunación y Seguimiento</summary>
+    <div class="form-grid">
+      <div class="field"><label>Estado vacunación materna</label><select class="select" name="Estado vacunación materna" id="sel-vacuna" multiple size="6"></select></div>
+      <div class="field"><label>Consejería recibida</label><select class="select" name="Consejería recibida" id="sel-consejeria" multiple size="6"></select></div>
+      <div class="field"><label>Tamizajes reportados</label><select class="select" name="Tamizajes reportados" id="sel-tamizajes" multiple size="6"></select></div>
+      <div class="field"><label>Signos de alarma</label><select class="select" name="Signos de alarma" id="sel-alarma" multiple size="6"></select></div>
+      <div class="field"><label>Tipo de canalización</label><select class="select" name="Tipo de canalización" id="sel-canalizacion" multiple></select></div>
+      <div class="field"><label>Fecha canalización</label><input class="input" type="date" name="Fecha canalización"></div>
+
+
+      <div class="field">
+        <label>Tipo de canalización realizada</label>
+        <select class="select" name="Tipo de canalización realizada" id="sel-canal-realizada" multiple size="5">
+        </select>
+      </div>
+
+
+
+      <div class="field"><label>Fecha atención efectiva</label><input class="input" type="date" name="Fecha atención efectiva"></div>
+      <div class="field"><label>Resultado canalización</label><select class="select" name="Resultado canalización" id="sel-resultado"></select></div>
+      <div class="field" style="grid-column:1/-1"><label>Observaciones</label><input class="input" name="Observaciones"></div>
+    </div>
+  </details>
+
+</div>
+
 
         <div class="actions">
           <button class="btn btn-primary" type="submit">Guardar completo</button>
@@ -219,6 +247,14 @@
   </div>
   <div id="alertas-gestante"></div>
 </div>
+
+<div class="subpanel" id="card-historial-gestante" style="display:none;">
+  <div class="subpanel-head">
+    <h4>Historial de cambios</h4>
+  </div>
+  <div id="historial-gestante"></div>
+</div>
+
 
       <h3>Listado</h3>
       <div id="tabla-gestantes"></div>
@@ -279,11 +315,12 @@ function renderTabla(items) {
 ;
 
     return `<tr>${tds}
-      <td class="t-actions">
-        <button class="btn btn-ghost" onclick="editar('${r.id}')">Editar</button>
+  <td class="t-actions">
+    <button class="btn btn-ghost" onclick="editar('${r.id}')">Editar</button>
     <button class="btn btn-ghost" onclick="verAlertas('${r.id}','${(r["Nombres y apellidos"]||"").replace(/"/g,"'")}')">Alertas</button>
-      </td>
-    </tr>`;
+    <button class="btn btn-ghost" onclick="verHistorial('${r.id}','${(r["Nombres y apellidos"]||"").replace(/"/g,"'")}')">Historial</button>
+  </td>
+</tr>`;
   }).join('') + '</tbody>';
 
   // 👇 ESTA ES LA LÍNEA CLAVE QUE FALTABA 👇
@@ -346,8 +383,16 @@ async function editar(id){
         fill('sel-perfil', c["Perfil profesional"]);
         fill('sel-zona', c["Zona"]);
         fill('sel-lugar', c["Lugar de captación"]);
+        fill('Regimen de salud', c["Regimen de salud"]);
+        fill('EPS', c["EPS"]);
         fill('sel-enfoque', c["Enfoque diferencial"]);
         fill('sel-multiple', c["Embarazo múltiple"]);
+        fill('sel-familiares', c["Antecedentes familiares"]);
+        fill('sel-obstetricos', c["Antecedentes obstétricos"]);
+        fill('sel-medicos', c["Antecedentes médicos"]);
+        fill('sel-preeclampsia', c["Preeclampsia o eclampsia"]);
+        fill('sel-cronicas', c["Enfermedades crónicas actuales"]);
+        fill('sel-spa', c["Consumo de SPA"]);
         fill('sel-ebs', c["Atención por EBS"]);
         fill('sel-ipse', c["Atención por IPS/ESE"]);
         fill('sel-vacuna', c["Estado vacunación materna"]);
@@ -357,6 +402,7 @@ async function editar(id){
         fill('sel-psico', c["Factores psicosociales"]);
         fill('sel-barreras', c["Barreras de acceso"]);
         fill('sel-canalizacion', c["Tipo de canalización"]);
+        fill('sel-canal-realizada', c["Tipo de canalización realizada"]);
         fill('sel-resultado', c["Resultado canalización"]);
       } catch (e) {
         console.error("Catálogos:", e);
@@ -407,6 +453,8 @@ window.initUI = async () => {
   await poblarSelects();
   await cargarTabla();
   await cargarResumenAlertas();
+  await setMunicipioUsuario();
+
 
   const ps = document.getElementById('pageSize');
   const qInput = document.getElementById('q');
@@ -558,6 +606,8 @@ async function verAlertas(gestanteId, nombre){
       </div>
     `;
 
+
+
     // --- Tabla de alertas ---
     if (!items.length){
       html += `<p class="muted">Sin alertas para esta gestante.</p>`;
@@ -653,13 +703,28 @@ async function verAlertas(gestanteId, nombre){
   }
 
   // cuando cambie el pageSize, vuelve a página 1 y recarga
-  document.addEventListener('DOMContentLoaded', () => {
-    const ps = document.getElementById('pageSize');
-    const qInput = document.getElementById('q');
-    if (ps) ps.addEventListener('change', () => { state.page = 1; loadPage(); });
-    if (qInput) qInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
-  });
+  
+async function setMunicipioUsuario() {
+  try {
+    const data = await window.apiGet('/api/usuario/municipio');
+    const muniInput = document.getElementById('input-municipio');
+    if (!muniInput) return;
 
+    if (data.municipios && data.municipios.length > 0) {
+      muniInput.value = data.municipios[0];
+    } else {
+      muniInput.value = "";
+    }
+
+    // Si el rol es admin, permitir edición manual
+    if (data.role === "admin") {
+      muniInput.removeAttribute("readonly");
+    }
+
+  } catch (err) {
+    console.error("Error al obtener municipio del usuario:", err);
+  }
+}
 
 
   </script>
@@ -750,6 +815,75 @@ window.apiPut = async (url, body) => {
       localStorage.removeItem('jwt');
       location.href = '/login';
     };
+
+
+async function verHistorial(gestanteId, nombre){
+  try{
+    console.log("verHistorial llamado con ID:", gestanteId);
+    const res = await window.apiGet(`/api/gestantes/${gestanteId}/historial`);
+    const items = res.items || [];
+    const cont = document.getElementById('historial-gestante');
+    const card = document.getElementById('card-historial-gestante');
+
+    if (!items.length){
+      cont.innerHTML = '<p class="muted">Sin historial para esta gestante.</p>';
+    } else {
+      const rows = items.map(x=>{
+        let nCambios = 0;
+        try { nCambios = Object.keys(JSON.parse(x.diff_json||"{}")).length; } catch {}
+        return `<tr>
+          <td>${x.version||''}</td>
+          <td>${x.accion||''}</td>
+          <td>${x.fecha_cambio||''}</td>
+          <td>${x.cambiado_por||''}</td>
+          <td>${nCambios}</td>
+          <td><details><summary>Ver cambios</summary><pre style="white-space:pre-wrap">${x.diff_json||''}</pre></details></td>
+        </tr>`;
+      }).join('');
+      cont.innerHTML = `
+        <p><b>Gestante:</b> ${nombre||gestanteId}</p>
+        <div class="table-scroll">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Versión</th><th>Acción</th><th>Fecha</th><th>Usuario</th>
+                <th># Cambios</th><th>Detalle</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    }
+    card.style.display = 'block';
+    card.scrollIntoView({behavior:'smooth'});
+  } catch(e){
+    alert('No se pudo cargar el historial: ' + (e?.message || e));
+  }
+}
+
+// 👇 esta línea es la clave
+window.verHistorial = verHistorial;
+
+// --- Detección automática de coincidencias ---
+document.getElementById('sel-canal-realizada').addEventListener('change', () => {
+  const realizadas = Array.from(document.getElementById('sel-canal-realizada').selectedOptions).map(o => o.value.trim());
+  const canalizadas = Array.from(document.getElementById('sel-canalizacion').selectedOptions).map(o => o.value.trim());
+  const coincide = realizadas.some(r => canalizadas.includes(r));
+
+  const estadoSel = document.getElementById('sel-resultado');
+  const fechaAt = document.querySelector('[name="Fecha atención efectiva"]');
+
+  if (coincide) {
+    estadoSel.value = "Atendida";
+    fechaAt.required = true;
+  } else {
+    estadoSel.value = "Pendiente";
+    fechaAt.required = false;
+  }
+});
+
+
+
 
 </script>
 
