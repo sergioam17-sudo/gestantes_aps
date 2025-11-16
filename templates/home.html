@@ -224,6 +224,17 @@
     <div class="card">
       <div class="toolbar">
         <input id="q" class="input" placeholder="Buscar documento o nombre" />
+        <select id="filtroRiesgo" class="select">
+          <option value="">Riesgo: Todos</option>
+          <option value="Rojo">Riesgo Alto (Rojo)</option>
+          <option value="Amarillo">Riesgo Medio (Amarillo)</option>
+          <option value="Verde">Riesgo Bajo (Verde)</option>
+        </select>
+        <select id="filtroAlertas" class="select">
+          <option value="">Alertas: Todas</option>
+          <option value="1">Con alertas abiertas</option>
+          <option value="0">Sin alertas</option>
+        </select>
         <select id="pageSize" class="select">
           <option value="10">10</option>
           <option value="20" selected>20</option>
@@ -667,7 +678,26 @@ async function verAlertas(gestanteId, nombre){
       if (state.q) params.append('q', state.q);
 
       const res = await window.apiGet('/api/gestantes?' + params.toString());
-      renderTabla(res.items);
+      // === FILTRO POR RIESGO ===
+      const filtroRiesgo = document.getElementById('filtroRiesgo')?.value || "";
+      let items = res.items;
+
+      if (filtroRiesgo) {
+          items = items.filter(g => String(g.riesgo).trim() === filtroRiesgo);
+      }
+
+      // === FILTRO POR ALERTAS ABIERTAS ===
+      const filtroAlertas = document.getElementById('filtroAlertas')?.value || "";
+
+      if (filtroAlertas === "1") {
+          items = items.filter(x => Number(x.alertas_abiertas) > 0);
+      }
+      if (filtroAlertas === "0") {
+          items = items.filter(x => Number(x.alertas_abiertas) === 0);
+      }
+
+
+      renderTabla(items);
       renderPager(res.total, res.page, res.page_size);
     } catch (e) {
       console.error("Error cargando página:", e);
