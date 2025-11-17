@@ -426,6 +426,43 @@ async function enviarCompleto(ev){
 
   const form = document.getElementById('form-completo');
 
+    // === VALIDACIÓN DE DUPLICADO EN FRONTEND ===
+    const fd_temp = new FormData(document.getElementById("form-completo"));
+
+    const docNuevo = fd_temp.get("Tipo y N° de identificación")?.trim() || "";
+    const muniNuevo = fd_temp.get("Municipio")?.trim().toUpperCase() || "";
+
+    if (!editingId && docNuevo) {
+        const posibles = await window.apiGet(`/api/gestantes?q=${encodeURIComponent(docNuevo)}`);
+
+        if (posibles.items && posibles.items.length > 0) {
+            const encontrado = posibles.items.find(
+                g =>
+                    (g["Tipo y N° de identificación"] || "").trim() === docNuevo &&
+                    (g["Municipio"] || "").trim().toUpperCase() === muniNuevo
+            );
+
+            if (encontrado) {
+                const ok = confirm(
+                    `⚠️ Esta gestante ya está registrada.\n\n` +
+                    `Nombre: ${encontrado["Nombres y apellidos"]}\n` +
+                    `Documento: ${encontrado["Tipo y N° de identificación"]}\n` +
+                    `Municipio: ${encontrado["Municipio"]}\n\n` +
+                    `¿Desea abrirla para editar en lugar de crear un duplicado?`
+                );
+
+                if (ok) {
+                    editar(encontrado.id);
+                    return; // cancelar guardado
+                } else {
+                    return; // cancelar por completo
+                }
+            }
+        }
+    }
+
+
+
   // 1) Tomamos todos los campos con FormData
   const fd = new FormData(form);
 

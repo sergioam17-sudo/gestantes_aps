@@ -387,6 +387,23 @@ def crear_gestante(item: dict = Body(...), scope=Depends(get_scope)):
     if f_ate and f_can and f_ate < f_can:
         raise HTTPException(status_code=400, detail="Fecha atención efectiva debe ser ≥ Fecha canalización")
 
+    # === VALIDACIÓN DE DUPLICADO POR DOCUMENTO + MUNICIPIO ===
+    documento_new = str(item.get("Tipo y N° de identificación", "")).strip()
+    municipio_new = str(item.get("Municipio", "")).strip().upper()
+
+    if documento_new:
+        registros_exist = read_all()
+        for r in registros_exist:
+            doc_exist = str(r.get("Tipo y N° de identificación", "")).strip()
+            muni_exist = str(r.get("Municipio", "")).strip().upper()
+
+            if doc_exist == documento_new and muni_exist == municipio_new:
+                raise HTTPException(
+                    status_code=409,
+                    detail="La gestante ya está registrada en este municipio."
+                )
+
+
     # --- Asegura columnas ---
     safe = {h: item.get(h, "") for h in HEADERS}
 
