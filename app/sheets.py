@@ -51,6 +51,11 @@ HEADERS = [
     "Fecha atención efectiva",
     "Resultado canalización",
     "Observaciones",
+    "Gestación finalizada",
+    "Fecha de desenlace",
+    "Tipo de desenlace",
+    "Resultado del embarazo",
+
     # Campos de auditoría recomendados:
     "usuario_registra",
     "timestamp"

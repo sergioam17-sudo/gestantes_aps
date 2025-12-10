@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Administrar Usuarios</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="topbar">
+    <div class="bar">
+        <div class="brand">Gestantes <b>APS</b></div>
+        <nav class="links">
+            <a href="/">Inicio</a> ·
+            <a href="/docs" target="_blank">Swagger</a> ·
+            <a href="#" onclick="logout()">Cerrar sesión</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <div class="card">
+        <h3>Administración de Usuarios</h3>
+
+        <h4>Crear / Actualizar Usuario</h4>
+        <div class="form-grid">
+            <div>
+                <label>Correo</label>
+                <input id="email" class="input">
+            </div>
+            <div>
+                <label>Contraseña</label>
+                <input id="password" class="input" type="password">
+            </div>
+            <div>
+                <label>Municipio</label>
+                <input id="municipio" class="input">
+            </div>
+            <div>
+                <label>Rol</label>
+                <select id="rol" class="select">
+                    <option>auxiliar</option>
+                    <option>jefe</option>
+                    <option>admin</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="crearUsuario()">Crear / Actualizar</button>
+
+        <h4 style="margin-top:30px;">Usuarios Registrados</h4>
+        <div id="tabla"></div>
+    </div>
+</main>
+
+<script>
+async function api(url, method="GET", body=null) {
+    const token = localStorage.getItem("jwt");
+    const opts = {
+        method,
+        headers: {
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
+        }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch(url, opts);
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+}
+
+async function cargar() {
+    const res = await api("/admin/ui/usuarios/listar");
+    const items = res.items;
+
+    let html = `
+        <div class="table-scroll">
+        <table class="table">
+        <thead><tr>
+            <th>Email</th><th>Municipio</th><th>Roles</th><th>Acciones</th>
+        </tr></thead><tbody>
+    `;
+
+    for (const u of items) {
+        const rolPrincipal = (u.roles || [])[0] || "";
+
+        html += `
+        <tr>
+            <td>${u.email}</td>
+            <td>${u.municipio || ''}</td>
+            <td>${(u.roles||[]).join(", ")}</td>
+            <td>
+                <button class="btn btn-ghost"
+                        onclick="editarUsuario('${u.email}', '${u.municipio || ''}', '${rolPrincipal}')">
+                    Editar
+                </button>
+                <button class="btn btn-ghost" onclick="resetPass('${u.email}')">Reset Pass</button>
+                <button class="btn btn-ghost" onclick="eliminar('${u.uid}')">Eliminar</button>
+            </td>
+        </tr>`;
+    }
+
+    html += "</tbody></table></div>";
+    document.getElementById("tabla").innerHTML = html;
+}
+
+async function crearUsuario() {
+    // Leemos los valores desde los inputs por id
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const municipio = document.getElementById("municipio").value.trim().toUpperCase();
+    const rol = document.getElementById("rol").value.trim();
+
+    try {
+        await api("/admin/ui/usuarios/crear", "POST", {
+            email, password, municipio, rol
+        });
+        alert("Usuario creado/actualizado");
+        cargar();
+    } catch (e) {
+        alert(e);
+    }
+}
+
+
+function editarUsuario(email, municipio, rol) {
+    document.getElementById("email").value = email;
+    document.getElementById("municipio").value = municipio || "";
+
+    // Si viene vacío, dejamos "auxiliar" por defecto
+    const rolSelect = document.getElementById("rol");
+    rolSelect.value = rol || "auxiliar";
+
+    // La contraseña se deja vacía: solo la cambias si escribes una nueva
+    document.getElementById("password").value = "";
+}
+
+
+
+
+
+async function resetPass(email) {
+    const r = await api("/admin/ui/usuarios/reset", "POST", {email});
+    alert("Link generado: " + r.link);
+}
+
+async function eliminar(uid) {
+    if (!confirm("¿Eliminar usuario?")) return;
+    await api("/admin/ui/usuarios/eliminar/"+uid, "DELETE");
+    cargar();
+}
+
+window.onload = cargar;
+</script>
+
+</body>
+</html>

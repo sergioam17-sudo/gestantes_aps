@@ -13,6 +13,7 @@
       <nav class="links">
         <a href="/login">Login</a> ·
         <a href="/docs" target="_blank">Swagger (API)</a> ·
+        <a id="link-admin-usuarios" href="/admin/ui/usuarios" style="display:none;">Administrar usuarios</a> ·
         <a href="#" onclick="logout()">Cerrar sesión</a>
       </nav>
     </div>
@@ -63,10 +64,15 @@
         <input class="input" name="Microterritorio">
       </div>
 
+      <div class="field">
+        <label>Municipio</label>
+        <input class="input" id="input-municipio" name="Municipio" required readonly>
+      </div>
 
-
-      <input class="input" id="input-municipio" name="Municipio" required readonly>
-      <div class="field"><label>Enfoque diferencial</label><select class="select" name="Enfoque diferencial" id="sel-enfoque"></select></div>
+      <div class="field">
+        <label>Enfoque diferencial</label>
+        <select class="select" name="Enfoque diferencial" id="sel-enfoque"></select>
+      </div>
     </div>
   </details>
 
@@ -212,6 +218,34 @@
   </details>
 
 </div>
+
+<!-- SECCIÓN 6 -->
+<details>
+  <summary>👶 Desenlace de la Gestación</summary>
+  <div class="form-grid">
+
+    <div class="field">
+      <label>¿La gestación ya finalizó?</label>
+      <select class="select" name="Gestación finalizada" id="sel-fin-gestacion"></select>
+    </div>
+
+    <div class="field">
+      <label>Fecha de desenlace</label>
+      <input class="input" type="date" name="Fecha de desenlace">
+    </div>
+
+    <div class="field">
+      <label>Tipo de desenlace</label>
+      <select class="select" name="Tipo de desenlace" id="sel-tipo-desenlace"></select>
+    </div>
+
+    <div class="field">
+      <label>Resultado del embarazo</label>
+      <select class="select" name="Resultado del embarazo" id="sel-resultado-emb"></select>
+    </div>
+
+  </div>
+</details>
 
 
         <div class="actions">
@@ -414,6 +448,10 @@ async function editar(id){
         fill('sel-barreras', c["Barreras de acceso"]);
         fill('sel-canalizacion', c["Tipo de canalización"]);
         fill('sel-canal-realizada', c["Tipo de canalización realizada"]);
+        fill('sel-fin-gestacion', c["Gestación finalizada"]);
+        fill('sel-tipo-desenlace', c["Tipo de desenlace"]);
+        fill('sel-resultado-emb', c["Resultado del embarazo"]);
+
         fill('sel-resultado', c["Resultado canalización"]);
       } catch (e) {
         console.error("Catálogos:", e);
@@ -502,6 +540,7 @@ window.initUI = async () => {
   await cargarTabla();
   await cargarResumenAlertas();
   await setMunicipioUsuario();
+  await mostrarEnlaceAdmin();
 
 
   const ps = document.getElementById('pageSize');
@@ -793,6 +832,18 @@ async function setMunicipioUsuario() {
   }
 }
 
+    async function mostrarEnlaceAdmin() {
+        try {
+            const data = await window.apiGet('/api/usuario/municipio');
+            // data.role viene de get_scope en security.py
+            if (data.role && data.role.toLowerCase() === 'admin') {
+                const link = document.getElementById('link-admin-usuarios');
+                if (link) link.style.display = 'inline';
+            }
+        } catch (e) {
+            console.error('No se pudo determinar el rol', e);
+        }
+    }
 
   </script>
 

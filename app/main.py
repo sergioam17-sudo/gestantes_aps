@@ -31,6 +31,7 @@ from starlette.middleware import Middleware
 
 # Rutas propias
 from app.admin_routes import router as admin_router  # asegúrate de tener app/admin_routes.py
+from app.admin_ui_routes import router as admin_ui_router
 from app.security import get_scope                   # verifica que exista app/security.py
 from app.sheets import read_all, append_row, HEADERS, update_row_by_id # y app/sheets.py
 
@@ -81,6 +82,8 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 # Incluir rutas de administración
 app.include_router(admin_router)
+app.include_router(admin_ui_router)
+
 
 # === Eventos ===
 
@@ -161,6 +164,23 @@ CATALOGOS = {
     "Tipo de canalización": ["CPN", "Vacunación", "Salud oral", "Lab", "Trabajo social", "Otro"],
     "Tipo de canalización realizada": ["CPN", "Vacunación", "Salud oral", "Psicosocial", "Planificación Familiar", "Otro"],
     "Resultado canalización": ["Atendida", "No asistió", "Reprogramada", "Pendiente"],
+    "Gestación finalizada": ["Sí", "No"],
+    "Tipo de desenlace": [
+        "Parto vaginal",
+        "Cesárea",
+        "Aborto espontáneo",
+        "Aborto inducido",
+        "Muerte fetal in útero",
+        "Embarazo ectópico",
+        "Otro"
+    ],
+    "Resultado del embarazo": [
+        "Recién nacido vivo",
+        "Recién nacido muerto",
+        "Embarazo múltiple todos vivos",
+        "Embarazo múltiple al menos un fallecido"
+    ],
+
 }
 
 # Rango/restricciones simples para validación en el server

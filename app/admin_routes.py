@@ -14,11 +14,13 @@ from app.auth_middleware import get_user, UserContext
 import firebase_admin
 from firebase_admin import auth as fb_auth, credentials
 
+# Usar SIEMPRE la misma credencial que en security.py
 if not firebase_admin._apps:
-    cred = credentials.ApplicationDefault()
-    firebase_admin.initialize_app(cred, {
-        'projectId': os.getenv('FIREBASE_PROJECT_ID')
-    })
+    cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if not cred_path:
+        raise RuntimeError("Falta la variable de entorno GOOGLE_APPLICATION_CREDENTIALS")
+    cred = credentials.Certificate(cred_path)
+    firebase_admin.initialize_app(cred)
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
