@@ -19,6 +19,7 @@ from app.alerts import (
 
 
 
+from fastapi import Header, HTTPException
 
 from fastapi import FastAPI, Request, Depends, HTTPException, Body
 from fastapi.responses import HTMLResponse, PlainTextResponse
@@ -668,3 +669,45 @@ def api_list_alertas(
 
     return {"items": out, "total": len(out)}
 
+from fastapi import Header, HTTPException
+
+def _check_bi_key(x_api_key: str | None):
+    expected = (os.getenv("BI_API_KEY") or "").strip()
+    if not expected:
+        raise HTTPException(status_code=500, detail="BI_API_KEY no configurada en Render")
+    if not x_api_key or x_api_key.strip() != expected:
+        raise HTTPException(status_code=403, detail="API Key inválida")
+
+@app.get("/bi/gestantes")
+def bi_gestantes(x_api_key: str | None = Header(default=None, alias="x-api-key")):
+    _check_bi_key(x_api_key)
+    # Hoja principal: gestantes
+    return read_all()
+
+@app.get("/bi/alertas")
+def bi_alertas(x_api_key: str | None = Header(default=None, alias="x-api-key")):
+    _check_bi_key(x_api_key)
+    # Hoja de alertas (ya existe en tu proyecto)
+    return read_alerts()
+
+@app.get("/bi/historial")
+def bi_historial(x_api_key: str | None = Header(default=None, alias="x-api-key")):
+    _check_bi_key(x_api_key)
+
+    # Lectura directa de la hoja gestantes_historial (tu historial de cambios)
+    from app.sheets import _service, SPREADSHEET_ID, HISTORY_TAB, HISTORY_HEADERS, _col_idx_to_a1
+
+    svc = _service()
+    end_col = _col_idx_to_a1(len(HISTORY_HEADERS))
+    rng = f"{HISTORY_TAB}!A1:{end_col}100000"
+    resp = svc.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range=rng).execute()
+    values = resp.get("values", []) or []
+    if len(values) <= 1:
+        return []
+
+    header = values[0]
+    data = [
+        {header[i]: (r[i] if i < len(r) else "") for i in range(len(header))}
+        for r in values[1:]
+    ]
+    return data
